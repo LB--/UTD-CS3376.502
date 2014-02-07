@@ -40,7 +40,7 @@ namespace util
 			close(c2p[1]);
 			return std::make_pair(p2c[1], c2p[0]);
 		}
-		return -1; //this line is never reached
+		return std::make_pair(-1, -1); //this line is never reached
 	}
 	int split()
 	{

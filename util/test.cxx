@@ -19,7 +19,18 @@ int child_p2c(int in)
 }
 int child_both(int in, int out)
 {
-	//...
+	std::cout << "[Child] After split, before read, before write." << std::endl;
+	std::string msg;
+	{
+		char c;
+		while(read(in, &c, 1) != 0) msg += c;
+	}
+	close(in);
+	std::cout << "[Child] After split, after read: \"" << msg << "\", before write." << std::endl;
+	msg = "From Child to Parent";
+	write(out, msg.c_str(), msg.size()+1);
+	close(out);
+	std::cout << "[Child] After split, after read, after write." << std::endl;
 	return 0;
 }
 
@@ -43,7 +54,21 @@ int main(int nargs, char const *const *args)
 	}
 	else if(arg == "both")
 	{
-		//...
+		std::cout << "Before split." << std::endl;
+		std::pair<int, int> io = util::split(child_both);
+		int out = io.first, in = io.second;
+		std::cout << "[Parent] After split, before write, before read." << std::endl;
+		std::string msg = "From Parent to Child";
+		write(out, msg.c_str(), msg.size()+1);
+		close(out);
+		std::cout << "[Parent] After split, after write, before read." << std::endl;
+		msg.clear();
+		{
+			char c;
+			while(read(in, &c, 1) != 0) msg += c;
+		}
+		close(in);
+		std::cout << "[Parent] After split, after write, after read: \"" << msg << "\"" << std::endl;
 	}
 	else if(arg == "ring")
 	{
